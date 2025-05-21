@@ -1,0 +1,14 @@
+name: MiniBackpackPlugin
+version: '1.0'
+main: me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin
+api-version: '1.21'
+authors: [ ElaineQheart ]
+website: https://www.youtube.com/@elaineqheart
+commands:
+  bp:
+    description: opens the backpack GUI
+    permission: MiniBackpackPlugin.backpack
+    aliases: minibackpack
+  backpackitems:
+    description: gives the backpack items
+    permission: MiniBackpackPlugin.backpackitems
