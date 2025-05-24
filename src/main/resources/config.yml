@@ -1,0 +1,6 @@
+tiny_backpack:
+  slots: 3
+  texture: "http://textures.minecraft.net/texture/9165ee13a606e1b44695af46c39b52ce66657a4c4a623d0b282a7b8ce0509404"
+small_backpack:
+  slots: 9
+  texture: "http://textures.minecraft.net/texture/2308bf5cc3e9decaf0770c3fdad1e042121cf39cc2505bbb866e18c6d23ccd0c"

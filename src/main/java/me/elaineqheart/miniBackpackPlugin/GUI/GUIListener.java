@@ -8,9 +8,9 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 
 public class GUIListener implements Listener {
 
-    private final GUIManager guiManager;
+    private final StorageGUIManager guiManager;
 
-    public GUIListener(GUIManager guiManager) {
+    public GUIListener(StorageGUIManager guiManager) {
         this.guiManager = guiManager;
     }
 
