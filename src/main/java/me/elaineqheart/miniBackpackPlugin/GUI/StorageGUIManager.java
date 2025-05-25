@@ -7,9 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -17,6 +15,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 //https://www.spigotmc.org/threads/a-modern-approach-to-inventory-guis.594005/
 
@@ -45,11 +44,11 @@ public class StorageGUIManager {
     public void handleClick(InventoryClickEvent event) {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
         if (handler == null) return;
-        //prhibited items are the backpack itself, battier blocks and shulker boxes
-        if(ItemManager.isProhibitedItem(event.getCurrentItem())) {
-            //prevent the player from taking the item
-            handler.onClick(event);
-        }
+        preventClick(event, handler);
+    }
+
+    public void handleDrag(InventoryDragEvent event) {
+        preventDrag(event);
     }
 
     public void handleOpen(InventoryOpenEvent event) {
@@ -72,6 +71,54 @@ public class StorageGUIManager {
             handler.onClose(event);
             this.unregisterInventory(inventory);
         }
+    }
+
+    private void preventClick(InventoryClickEvent event, InventoryHandler handler) {
+
+        ItemStack current = event.getCurrentItem();
+        ItemStack cursor = event.getCursor();
+        ItemStack hotbarItem = null;
+
+        if(Objects.equals(current, item) || Objects.equals(current, ItemManager.barrier)) { // completely disable clicks
+            handler.onClick(event); //this cancels the event
+            return;
+        }
+        if (event.isShiftClick() && isProhibited(current)) { // shift click
+            handler.onClick(event);
+            return;
+        }
+        if (event.getClickedInventory() == event.getWhoClicked().getInventory()) return; //allow moving items in the main inventory
+
+        if (event.getAction() == InventoryAction.HOTBAR_SWAP || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) { // kotkey swap
+            int hotbarButton = event.getHotbarButton();
+            hotbarItem = event.getWhoClicked().getInventory().getItem(hotbarButton);
+        }
+        if(event.getRawSlot() < 0) return;// allow dropping backpacks and shulkers
+        if (isProhibited(current) || isProhibited(cursor) || isProhibited(hotbarItem)) {
+            handler.onClick(event);
+        }
+
+    }
+    private void preventDrag(InventoryDragEvent event) {
+        Inventory topInventory = event.getView().getTopInventory();
+        // Allow dragging within player's own inventory
+        for (int slot : event.getRawSlots()) {
+            if (slot < topInventory.getSize()) { //check if any of the drag slots are in the top inventory
+                for (ItemStack item : event.getNewItems().values()) {
+                    if (isProhibited(item)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    private boolean isProhibited(ItemStack item) {
+        if (item == null) return false;
+        if (item.getType() == Material.SHULKER_BOX ||
+                item.getType().name().endsWith("_SHULKER_BOX")) return true;
+        return ItemManager.isBackpack(item);
     }
 
 }

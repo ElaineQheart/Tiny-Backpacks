@@ -5,12 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -136,27 +132,12 @@ public class ItemManager implements Listener {
 //        }
 //    }
 
-
     public static boolean isBackpack(ItemStack item) {
         if(item == null) return false;
         ItemMeta meta = item.getItemMeta();
         if(meta == null) return false;
         PersistentDataContainer container = meta.getPersistentDataContainer();
         return container.has(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING);
-    }
-
-    public static boolean isProhibitedItem(ItemStack item) {
-        if (item == null) return false;
-        return item.equals(barrier) || isBackpack(item) || isShulkerBox(item.getType());
-    }
-
-    public static boolean isShulkerBox(Material type) {
-        return type == Material.SHULKER_BOX || type == Material.WHITE_SHULKER_BOX || type == Material.ORANGE_SHULKER_BOX ||
-                type == Material.MAGENTA_SHULKER_BOX || type == Material.LIGHT_BLUE_SHULKER_BOX || type == Material.YELLOW_SHULKER_BOX ||
-                type == Material.LIME_SHULKER_BOX || type == Material.PINK_SHULKER_BOX || type == Material.GRAY_SHULKER_BOX ||
-                type == Material.LIGHT_GRAY_SHULKER_BOX || type == Material.CYAN_SHULKER_BOX || type == Material.PURPLE_SHULKER_BOX ||
-                type == Material.BLUE_SHULKER_BOX || type == Material.BROWN_SHULKER_BOX || type == Material.GREEN_SHULKER_BOX ||
-                type == Material.RED_SHULKER_BOX || type == Material.BLACK_SHULKER_BOX;
     }
 
 }
