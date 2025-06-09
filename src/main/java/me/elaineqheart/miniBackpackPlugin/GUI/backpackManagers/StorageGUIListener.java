@@ -1,4 +1,4 @@
-package me.elaineqheart.miniBackpackPlugin.GUI;
+package me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -7,17 +7,22 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 
-public class GUIListener implements Listener {
+public class StorageGUIListener implements Listener {
 
-    private final GUIManager guiManager;
+    private final StorageGUIManager guiManager;
 
-    public GUIListener(GUIManager guiManager) {
+    public StorageGUIListener(StorageGUIManager guiManager) {
         this.guiManager = guiManager;
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         this.guiManager.handleClick(event);
+    }
+
+    @EventHandler
+    public void onDrag(InventoryDragEvent event) {
+        this.guiManager.handleDrag(event);
     }
 
     @EventHandler

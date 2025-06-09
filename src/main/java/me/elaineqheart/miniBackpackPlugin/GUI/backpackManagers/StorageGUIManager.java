@@ -1,5 +1,7 @@
-package me.elaineqheart.miniBackpackPlugin.GUI;
+package me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers;
 
+import me.elaineqheart.miniBackpackPlugin.GUI.InventoryHandler;
+import me.elaineqheart.miniBackpackPlugin.GUI.impl.EditBackpackGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
@@ -10,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
@@ -24,16 +27,16 @@ import java.util.Objects;
 
 public class StorageGUIManager {
 
-    private ItemStack item;
+    private final Map<Inventory, ItemStack> item = new HashMap<>();
     private final Map<Inventory, InventoryHandler> activeInventories = new HashMap<>();
 
-    public void openGUI(ItemStack item, InventoryGUI gui, Player player) {
+    public void openGUI(ItemStack item, StorageInventoryGUI gui, Player player) {
         this.registerHandledInventory(item, gui.getInventory(), gui);
         player.openInventory(gui.getInventory());
     }
 
     public void registerHandledInventory(ItemStack item, Inventory inventory, InventoryHandler handler) {
-        this.item = item;
+        this.item.put(inventory,item);
         this.activeInventories.put(inventory,handler);
     }
 
@@ -48,6 +51,8 @@ public class StorageGUIManager {
     }
 
     public void handleDrag(InventoryDragEvent event) {
+        InventoryHandler handler = this.activeInventories.get(event.getInventory());
+        if (handler == null) return;
         preventDrag(event);
     }
 
@@ -56,9 +61,13 @@ public class StorageGUIManager {
 
         if (handler != null){
             event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.BLOCK_SHULKER_BOX_OPEN,1,1);
-            assert item.getItemMeta()!=null;
-            item.getItemMeta().getPersistentDataContainer().set(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING,"");
             handler.onOpen(event);
+
+            if(item.get(event.getInventory()) == null) return;
+            ItemMeta meta = item.get(event.getInventory()).getItemMeta();
+            assert meta != null;
+            meta.getPersistentDataContainer().set(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING,"");
+            item.get(event.getInventory()).setItemMeta(meta);
         }
     }
 
@@ -67,20 +76,28 @@ public class StorageGUIManager {
         InventoryHandler handler = this.activeInventories.get(inventory);
         if (handler != null){
             event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_BAT_TAKEOFF,1,1);
-            ItemStackConverter.updateItem(item,inventory.getContents());
+            if (!event.getInventory().getType().equals(InventoryType.CRAFTER)) { // the crafter is for editing the crafting recipe
+                ItemStackConverter.updateItem(item.get(inventory), inventory.getContents());
+            }
             handler.onClose(event);
             this.unregisterInventory(inventory);
         }
     }
 
+
+
     private void preventClick(InventoryClickEvent event, InventoryHandler handler) {
 
+        Inventory inventory = event.getInventory();
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
         ItemStack hotbarItem = null;
 
-        if(Objects.equals(current, item) || Objects.equals(current, ItemManager.barrier)) { // completely disable clicks
-            handler.onClick(event); //this cancels the event
+        if(Objects.equals(current, item.get(inventory)) || Objects.equals(current, ItemManager.barrier)
+                || Objects.equals(current,ItemManager.fillerItem) || Objects.equals(current, ItemManager.craftingInfo1)
+                || Objects.equals(current, ItemManager.craftingInfo2) || Objects.equals(current, ItemManager.craftingInfo3)) {
+            // completely disable these clicks
+            handler.onClick(event);
             return;
         }
         if (event.isShiftClick() && isProhibited(current)) { // shift click

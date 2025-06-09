@@ -1,43 +1,65 @@
 package me.elaineqheart.miniBackpackPlugin.GUI.impl;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
-import me.elaineqheart.miniBackpackPlugin.GUI.InventoryGUI;
+import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageInventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.io.IOException;
+import java.util.Objects;
 
-public class BackpackGUI extends InventoryGUI {
+public class BackpackGUI extends StorageInventoryGUI {
 
     private final ItemStack item;
     private final int slots;
     private final int inventorySize;
 
     public BackpackGUI(ItemStack item, String name, int slots) {
-        super(((slots-1)/9+1)*9, name);
+        super(slots, name);
+
         this.item = item;
         this.slots = slots;
-        this.inventorySize = ((slots-1)/9+1)*9;
+        if(isHopperInventory(name)) {
+            this.inventorySize = 5;
+        } else {
+            this.inventorySize = ((slots - 1) / 9 + 1) * 9;
+        }
     }
 
     @Override
-    protected Inventory createInventory(int size, String name) {
-        return Bukkit.createInventory(null,size,name);
+    protected Inventory createInventory(int slots, String name) {
+        if(isHopperInventory(name)) {
+            return Bukkit.createInventory(null, InventoryType.HOPPER, name);
+        } else {
+            int size = ((slots-1)/9+1)*9;
+            return Bukkit.createInventory(null, size, name);
+        }
+    }
+
+    private boolean isHopperInventory(String name) {
+        return slots <= 5 && Objects.equals(MiniBackpackPlugin.getPlugin().getConfig().get(ItemManager.toDataCase(name) + ".type"), "hopper");
     }
 
     @Override
     public void decorate(Player player) {
-        int row = inventorySize/9;
-        int sumOfLockedSlots = (inventorySize-slots);
-        for(int i = 1; i <= sumOfLockedSlots; i++){
-            this.addButton(row*9-i, lockedSlot());
+        int sumOfLockedSlots = (inventorySize - slots);
+        if(inventorySize==5) {
+            for (int i = 1; i <= sumOfLockedSlots; i++) {
+                this.addButton(5 - i, lockedSlot());
+            }
+        } else {
+            int row = inventorySize / 9;
+            for (int i = 1; i <= sumOfLockedSlots; i++) {
+                this.addButton(row * 9 - i, lockedSlot());
+            }
         }
         decorateItems();
         super.decorate(player);

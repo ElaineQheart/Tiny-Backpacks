@@ -7,4 +7,10 @@ website: https://www.youtube.com/@elaineqheart
 commands:
   backpackitems:
     description: gives the backpack items
-    permission: MiniBackpackPlugin.backpackitems
+    permission: MiniBackpackPlugin.give
+  editbackpack:
+    description: opens the backpack editor
+    permission: MiniBackpackPlugin.edit
+  backpackreload:
+    description: reloads the plugin if there were any changes in the config.yml file
+    permission: MiniBackpackPlugin.edit
