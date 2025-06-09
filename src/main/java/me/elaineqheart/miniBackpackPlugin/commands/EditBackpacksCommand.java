@@ -1,6 +1,6 @@
 package me.elaineqheart.miniBackpackPlugin.commands;
 
-import me.elaineqheart.miniBackpackPlugin.GUI.impl.MainEditGUI;
+import me.elaineqheart.miniBackpackPlugin.GUI.impl.MainMenuGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,7 +13,7 @@ public class EditBackpacksCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
         if (commandSender instanceof Player p) {
-            MiniBackpackPlugin.getGUIManager().openGUI(new MainEditGUI(),p);
+            MiniBackpackPlugin.getGUIManager().openGUI(new MainMenuGUI(),p);
         }
 
         return true;

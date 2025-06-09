@@ -7,9 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -47,6 +44,7 @@ public class ItemManager{
     public static ItemStack craftingInfo1;
     public static ItemStack craftingInfo2;
     public static ItemStack craftingInfo3;
+    public static ItemStack deselectUpgrade;
 
     public static final HashMap<String,String> craftingUpgrades = new HashMap<>(); //material backpack name, result backpack name
     private static final HashMap<String,List<String>> craftingMaterials = new HashMap<>(); //backpack name, material list
@@ -74,6 +72,7 @@ public class ItemManager{
         createUpgradeBackpack();
         createAllCraftingInfo();
         createBarrier();
+        createDeselectUpgrade();
     }
 
     public static void loadBackpacks(boolean reloadRecipes) {
@@ -131,7 +130,7 @@ public class ItemManager{
                         craftingUpgrades.put(namespacedMaterial, itemName); //store the upgrade backpack name
                         //a backpack upgrade
                     } else {
-                        Bukkit.getLogger().warning("Invalid material: " + namespacedMaterial);
+                        Bukkit.getLogger().warning("Invalid material \"" + namespacedMaterial + "\" for backpack: " + itemName);
                     }
                 }
             }
@@ -143,11 +142,18 @@ public class ItemManager{
                             .mapToObj(c -> ingredientMap.get(String.valueOf((char) c))))
                     .toList();
             craftingMaterials.put(itemName, transformedPattern); //store the crafting materials for this backpack
+
+            for (ShapedRecipe check : recipeMap) { //check for double recipes, which will overwrite eachother
+                if (check.getIngredientMap().equals(recipe.getIngredientMap())) {
+                    MiniBackpackPlugin.getPlugin().getLogger().warning("Duplicate recipe found for backpack: " + itemName + ". The recipe will be overwritten.");
+                }
+            }
             recipeMap.add(recipe); //store the recipe for this backpack
+
         }
 
     }
-    public static void safeBackpackData(Backpack data) {
+    public static void safeBackpackData(BackpackNote data, boolean reload) {
         String name = toDataCase(data.name);
         MiniBackpackPlugin.getPlugin().getConfig().set(name + ".slots", data.slots);
         if(data.isHopperSized) {
@@ -157,13 +163,15 @@ public class ItemManager{
         }
         MiniBackpackPlugin.getPlugin().getConfig().set(name + ".texture", data.texture);
         if(data.craftingMaterials != null) {
-            recipeYamlBuilder(data.craftingMaterials, name + ".recipe");
+            recipeYamlBuilder(Arrays.asList(data.craftingMaterials), name + ".recipe");
         } else {
             MiniBackpackPlugin.getPlugin().getConfig().set(name + ".recipe", null); //remove the recipe if there are no crafting materials
         }
-        MiniBackpackPlugin.getPlugin().saveConfig();
-        MiniBackpackPlugin.getPlugin().reloadConfig();
-        loadBackpacks(true); //reload backpacks after saving
+        if(reload) {
+            MiniBackpackPlugin.getPlugin().saveConfig();
+            MiniBackpackPlugin.getPlugin().reloadConfig();
+            loadBackpacks(true); //reload backpacks after saving
+        }
     }
 
     private static void recipeYamlBuilder(List<String> inputs, String path) {
@@ -199,17 +207,22 @@ public class ItemManager{
         MiniBackpackPlugin.getPlugin().getConfig().set(path + ".ingredients", symbolMap);
     }
 
-    public static void deleteBackpackData(Backpack name) {
-        String dataName = toDataCase(name.name);
-        if(!MiniBackpackPlugin.getPlugin().getConfig().contains(dataName)) return;
-        MiniBackpackPlugin.getPlugin().getConfig().set(dataName, null);
-        MiniBackpackPlugin.getPlugin().saveConfig();
-        loadBackpacks(true); //reload backpacks after deleting
-    }
-    public static void deleteBackpack(Backpack data) {
+    public static void deleteBackpack(BackpackNote data) {
         String dataName = toDataCase(data.name);
         if(!MiniBackpackPlugin.getPlugin().getConfig().contains(dataName)) return;
         MiniBackpackPlugin.getPlugin().getConfig().set(dataName, null);
+        //remove it from crafting recipes
+        for(String key : craftingUpgrades.keySet()) { //material backpack name, result backpack name
+            if(key.equals(dataName)) {
+                String resultBackpackName = craftingUpgrades.get(key);
+                BackpackNote craftingUpgradeData = getBackpackNoteFromItem(getBackpackFromName(resultBackpackName));
+                craftingUpgradeData.setMaterial(4, "air"); //remove the upgrade backpack
+                craftingUpgradeData.hasUpgradeBackpack = false; //set the upgrade backpack to false
+                safeBackpackData(craftingUpgradeData, false);
+
+            }
+        }
+
         MiniBackpackPlugin.getPlugin().saveConfig();
         loadBackpacks(true); //reload backpacks after deleting
     }
@@ -226,7 +239,7 @@ public class ItemManager{
         return true;
     }
 
-    public static Backpack getBackpackFromItem(ItemStack item) {
+    public static BackpackNote getBackpackNoteFromItem(ItemStack item) {
         if (!isBackpack(item)) return null;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
@@ -248,7 +261,14 @@ public class ItemManager{
 
         List<String> craftingMaterialList = craftingMaterials.get(toDataCase(meta.getItemName())); //is null when there is no entry
 
-        return new Backpack(meta.getItemName(), slots, texture,isHopperSized,upgradeItem, craftingMaterialList);
+        return new BackpackNote(meta.getItemName(), slots, texture, isHopperSized, upgradeItem != null,
+                craftingMaterialList == null ? null : craftingMaterialList.toArray(new String[9]));
+    }
+    public static ItemStack getBackpackFromName(String name) {
+        return backpacks.stream()
+                .filter(i -> toDataCase(i.getItemMeta().getItemName()).equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public static String toTitleCase(String input) {
@@ -332,7 +352,11 @@ public class ItemManager{
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
         meta.setItemName(ChatColor.GREEN + "Edit Crafting Recipe");
-        meta.setLore(List.of(ChatColor.GRAY + "Click to open a crafting grid"));
+        meta.setLore(List.of(ChatColor.GRAY + "You can add or edit a crafting recipe",
+                ChatColor.GRAY + "for this backpack. Make sure to have",
+                ChatColor.GRAY + "the items in your inventory before.",
+                "",
+                ChatColor.YELLOW + "Click to open a crafting grid"));
         item.setItemMeta(meta);
         craftingTable = item;
     }
@@ -424,8 +448,11 @@ public class ItemManager{
         assert meta != null;
         meta.setItemName(ChatColor.GREEN + "Set a Backpack to upgrade");
 
-        meta.setLore(List.of(ChatColor.GRAY + "Click to choose a backpack which",
-                ChatColor.GRAY + "will be an upgrade material to this one"));
+        meta.setLore(List.of(ChatColor.GRAY + "You can choose a backpack with less",
+                ChatColor.GRAY + "slots than the current one to be an",
+                ChatColor.GRAY + "upgrade material for this backpack.",
+                "",
+                ChatColor.YELLOW + "Click to choose a backpack"));
         meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         item.setItemMeta(meta);
         upgradeBackpack = item;
@@ -450,6 +477,15 @@ public class ItemManager{
                 ChatColor.GRAY + "though it's not recommended."));
         item.setItemMeta(meta);
         craftingInfo3 = item.clone();
+    }
+    private static void createDeselectUpgrade() {
+        ItemStack item = new ItemStack(Material.BARRIER);
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+        meta.setItemName(ChatColor.RED + "Deselect Upgrade Backpack");
+        meta.setLore(List.of(ChatColor.YELLOW + "Click to deselect the upgrade backpack"));
+        item.setItemMeta(meta);
+        deselectUpgrade = item;
     }
 
     public static ItemStack makeSkull(String url) {

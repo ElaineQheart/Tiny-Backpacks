@@ -1,6 +1,6 @@
 package me.elaineqheart.miniBackpackPlugin.items.listener;
 
-import me.elaineqheart.miniBackpackPlugin.GUI.impl.BackpackGUI;
+import me.elaineqheart.miniBackpackPlugin.GUI.impl.Backpack;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
@@ -73,7 +73,7 @@ public class OpenBackpackListener implements Listener {
             } else {
                 name = meta.getItemName();
             }
-            MiniBackpackPlugin.getStorageGUIManager().openGUI(item, new BackpackGUI(item,name,slots), event.getPlayer());
+            MiniBackpackPlugin.getStorageGUIManager().openGUI(item, new Backpack(item,name,slots), event.getPlayer());
         }
 
     }

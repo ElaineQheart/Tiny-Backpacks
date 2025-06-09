@@ -6,7 +6,7 @@ import me.elaineqheart.miniBackpackPlugin.GUI.other.input.AnvilGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.input.ChatInputListener;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.Sounds;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,9 +14,9 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.*;
 
-public class MainEditGUI extends InventoryGUI {
+public class MainMenuGUI extends InventoryGUI {
 
-    private static final Map<Player, Backpack> activeDataOfCreatedBackpacks = new HashMap<>();
+    private static final Map<Player, BackpackNote> activeDataOfCreatedBackpacks = new HashMap<>();
 
 
     @Override
@@ -71,7 +71,7 @@ public class MainEditGUI extends InventoryGUI {
                             activeDataOfCreatedBackpacks.remove(player);
                             return;
                         }
-                        Backpack data = activeDataOfCreatedBackpacks.get(player);
+                        BackpackNote data = activeDataOfCreatedBackpacks.get(player);
                         data.slots = Integer.parseInt(input);
                         activeDataOfCreatedBackpacks.put(player,data);
                         ChatInputListener.addActivePlayerTextureInput(player,data);
@@ -81,7 +81,7 @@ public class MainEditGUI extends InventoryGUI {
                     AnvilGUI nameInput = (player, input) -> {
                         String formalizedInput = ItemManager.toTitleCase(input);
                         MiniBackpackPlugin.getSearchGUI().open("Backpack Slots [1-54]",ItemManager.emptyPaper, (Player) event.getWhoClicked(), slotInput);
-                        Backpack data = new Backpack();
+                        BackpackNote data = new BackpackNote();
                         data.name = formalizedInput;
                         activeDataOfCreatedBackpacks.put(player, data);
                     };

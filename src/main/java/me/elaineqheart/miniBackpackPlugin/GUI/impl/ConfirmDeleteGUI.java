@@ -3,7 +3,7 @@ package me.elaineqheart.miniBackpackPlugin.GUI.impl;
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.Sounds;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,9 +13,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ConfirmDeleteGUI extends InventoryGUI {
 
-    Backpack data;
+    BackpackNote data;
 
-    public ConfirmDeleteGUI(Backpack data) {
+    public ConfirmDeleteGUI(BackpackNote data) {
         super();
         this.data = data;
     }

@@ -4,7 +4,7 @@ import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.Sounds;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,7 +47,7 @@ public class ViewAllBackpacksGUI extends InventoryGUI {
                 .creator(player -> ItemManager.backArrow)
                 .consumer(event -> {
                     Sounds.closeEnderChest(event);
-                    MiniBackpackPlugin.getGUIManager().openGUI(new MainEditGUI(), (Player) event.getWhoClicked());
+                    MiniBackpackPlugin.getGUIManager().openGUI(new MainMenuGUI(), (Player) event.getWhoClicked());
                 });
     }
 
@@ -56,7 +56,7 @@ public class ViewAllBackpacksGUI extends InventoryGUI {
                 .creator(player -> item)
                 .consumer(event -> {
                     Sounds.click(event);
-                    Backpack data = ItemManager.getBackpackFromItem(event.getCurrentItem());
+                    BackpackNote data = ItemManager.getBackpackNoteFromItem(event.getCurrentItem());
                     MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), (Player) event.getWhoClicked());
                 });
     }

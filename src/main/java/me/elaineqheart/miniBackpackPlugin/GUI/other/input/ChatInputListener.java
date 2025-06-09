@@ -2,7 +2,7 @@ package me.elaineqheart.miniBackpackPlugin.GUI.other.input;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.impl.EditBackpackGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,8 +19,8 @@ import java.util.*;
 
 public class ChatInputListener implements Listener {
 
-    private static final Map<Player,Backpack> activePlayerTextureInput = new HashMap();
-    public static void addActivePlayerTextureInput(Player player, Backpack data) {
+    private static final Map<Player, BackpackNote> activePlayerTextureInput = new HashMap();
+    public static void addActivePlayerTextureInput(Player player, BackpackNote data) {
         player.sendMessage(ChatColor.AQUA + "-------------------------------------------------");
         player.sendMessage(ChatColor.YELLOW + "Please enter the texture URL for the backpack in chat:");
         player.sendMessage(ChatColor.AQUA + "-------------------------------------------------");
@@ -46,11 +46,11 @@ public class ChatInputListener implements Listener {
                 event.getPlayer().sendMessage(ChatColor.YELLOW + "Try again. To leave the texture input, type 'cancel'.");
                 return;
             }
-            Backpack data = activePlayerTextureInput.get(event.getPlayer());
+            BackpackNote data = activePlayerTextureInput.get(event.getPlayer());
             data.texture = input;
             activePlayerTextureInput.remove(event.getPlayer());
             Bukkit.getScheduler().runTaskLater(MiniBackpackPlugin.getPlugin(), () -> {
-                ItemManager.safeBackpackData(data);
+                ItemManager.safeBackpackData(data,true);
                 MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), event.getPlayer());
             }, 1);
         }

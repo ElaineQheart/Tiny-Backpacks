@@ -2,11 +2,11 @@ package me.elaineqheart.miniBackpackPlugin.GUI.impl;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryGUI;
+import me.elaineqheart.miniBackpackPlugin.GUI.other.Sounds;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.input.AnvilGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.input.ChatInputListener;
-import me.elaineqheart.miniBackpackPlugin.GUI.other.Sounds;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,9 +19,9 @@ import java.util.List;
 
 public class EditBackpackGUI extends InventoryGUI {
 
-    Backpack data;
+    BackpackNote data;
 
-    public EditBackpackGUI(Backpack data) {
+    public EditBackpackGUI(BackpackNote data) {
         super();
         this.data = data;
     }
@@ -49,7 +49,22 @@ public class EditBackpackGUI extends InventoryGUI {
             this.addButton(13, backpack(item));
         }
         this.addButton(16, delete());
-        this.addButton(19, upgrade());
+        {
+            ItemStack upgradeItem = ItemManager.upgradeBackpack;
+            if (data.hasUpgradeBackpack) {
+                upgradeItem = ItemManager.getBackpackFromName(data.craftingMaterials[4]).clone();
+                ItemMeta meta = upgradeItem.getItemMeta();
+                meta.setItemName(ChatColor.GREEN + meta.getItemName());
+                meta.setLore(List.of(ChatColor.GRAY + "This is the current upgrade material.", "",
+                        ChatColor.GRAY + "You can choose a backpack with less",
+                        ChatColor.GRAY + "slots than the current one to be an",
+                        ChatColor.GRAY + "upgrade material for this backpack.",
+                        "",
+                        ChatColor.YELLOW + "Click to remove or change this"));
+                upgradeItem.setItemMeta(meta);
+            }
+            this.addButton(19, upgradeTemplate(upgradeItem));
+        }
         this.addButton(21, editName());
         this.addButton(22, editSlots());
         this.addButton(23, editTexture());
@@ -88,23 +103,25 @@ public class EditBackpackGUI extends InventoryGUI {
                 .creator(player -> ItemManager.craftingTable)
                 .consumer(event -> {
                     Sounds.click(event);
-                    ItemStack item = null;
+                    ItemStack upgradeItem = null;
                     for(ItemStack testBackpack : ItemManager.backpacks) {
-                        if(testBackpack.getItemMeta() != null && ItemManager.toDataCase(testBackpack.getItemMeta().getItemName()).equals(data.upgradeBackpack)) {
-                            item = testBackpack; //get the crafting ingredient backpack
+                        if(testBackpack.getItemMeta() != null && data.craftingMaterials != null &&
+                                ItemManager.toDataCase(testBackpack.getItemMeta().getItemName()).equals(data.craftingMaterials[4])) {
+                            upgradeItem = testBackpack; //get the crafting ingredient backpack
                             break;
                         }
                     }
                     Player p = (Player) event.getWhoClicked();
-                    MiniBackpackPlugin.getStorageGUIManager().openGUI(item,new CraftingTableGUI(item,data), p);
+                    MiniBackpackPlugin.getStorageGUIManager().openGUI(upgradeItem,new CraftingTableGUI(upgradeItem,data), p);
 
                 });
     }
-    private InventoryButton upgrade() {
+    private InventoryButton upgradeTemplate(ItemStack item) {
         return new InventoryButton()
-                .creator(player -> ItemManager.upgradeBackpack)
+                .creator(player -> item)
                 .consumer(event -> {
                     Sounds.click(event);
+                    MiniBackpackPlugin.getGUIManager().openGUI(new UpgradeGUI(data), (Player) event.getWhoClicked());
                 });
     }
     private InventoryButton back(){
@@ -129,7 +146,7 @@ public class EditBackpackGUI extends InventoryGUI {
                 .consumer(event -> {
                     Sounds.click(event);
                     data.isHopperSized = !data.isHopperSized;
-                    ItemManager.safeBackpackData(data);
+                    ItemManager.safeBackpackData(data,true);
                     MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), (Player) event.getWhoClicked());
                 });
     }
@@ -140,9 +157,9 @@ public class EditBackpackGUI extends InventoryGUI {
                     Sounds.click(event);
                     AnvilGUI nameInput = (player, input) -> {
                         String formalizedInput = ItemManager.toTitleCase(input);
-                        ItemManager.deleteBackpackData(data);
+                        ItemManager.deleteBackpack(data);
                         data.name = formalizedInput;
-                        ItemManager.safeBackpackData(data);
+                        ItemManager.safeBackpackData(data,true);
                         MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
                     };
                     MiniBackpackPlugin.getSearchGUI().open("The Item name", ItemManager.emptyPaper, (Player) event.getWhoClicked(), nameInput);
@@ -164,7 +181,7 @@ public class EditBackpackGUI extends InventoryGUI {
                         if(data.slots > 5) {
                             data.isHopperSized = false;
                         }
-                        ItemManager.safeBackpackData(data);
+                        ItemManager.safeBackpackData(data,true);
                         MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
                         // ask to type in chat
                     };

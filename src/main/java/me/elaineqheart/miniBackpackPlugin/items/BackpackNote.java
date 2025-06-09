@@ -6,28 +6,32 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.checkerframework.checker.units.qual.A;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class Backpack {
+public class BackpackNote {
 
     public String name;
     public int slots;
     public String texture;
     public boolean isHopperSized;
-    public String upgradeBackpack; //the backpack this is crafted from, can be null
-    public List<String> craftingMaterials; //can be null
+    public boolean hasUpgradeBackpack; //the backpack this is crafted from, can be null
+    public String[] craftingMaterials; //can be null
+    // something like [air, leather, air, leather, tiny_backpack, leather, air, leather, air]
 
-    public Backpack (String name, int slots, String texture, boolean isHopperSized, String upgradeBackpack, List<String> craftingMaterials) {
+    public BackpackNote(String name, int slots, String texture, boolean isHopperSized, boolean hasUpgradeBackpack, String[] craftingMaterials) {
         this.name = name;
         this.slots = slots;
         this.texture = texture;
         this.isHopperSized = isHopperSized;
-        this.upgradeBackpack = upgradeBackpack;
+        this.hasUpgradeBackpack = hasUpgradeBackpack;
         this.craftingMaterials = craftingMaterials;
     }
 
-    public Backpack(){}
+    public BackpackNote(){}
 
 
     public String toString() {
@@ -47,6 +51,24 @@ public class Backpack {
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    public void setMaterial(int index, String material) {
+        if (craftingMaterials == null) {
+            craftingMaterials = new String[]{
+                "air", "air", "air",
+                "air", "air", "air",
+                "air", "air", "air"
+            };
+        }
+        craftingMaterials[index] = material;
+        if(Arrays.equals(craftingMaterials, new String[]{
+                "air", "air", "air",
+                "air", "air", "air",
+                "air", "air", "air"
+        })) {
+            craftingMaterials = null;
+        }
     }
 
 }

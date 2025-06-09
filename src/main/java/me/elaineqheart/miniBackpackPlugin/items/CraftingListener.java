@@ -31,7 +31,7 @@ public class CraftingListener implements Listener {
                     if (upgradeItemName != null && upgradeItemName.equals(ItemManager.toDataCase(result.getItemMeta().getItemName()))) {
 
                         String data = container.get(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING); //copy the items
-                        ItemMeta resultMeta = result.getItemMeta(); //this way you can upgrade backpacks and they keep their items
+                        ItemMeta resultMeta = result.getItemMeta(); //this way you can upgrade backpacks and the items will be transferred to the new backpack
                         assert data != null;
                         resultMeta.getPersistentDataContainer().set(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING, data);
                         result.setItemMeta(resultMeta);

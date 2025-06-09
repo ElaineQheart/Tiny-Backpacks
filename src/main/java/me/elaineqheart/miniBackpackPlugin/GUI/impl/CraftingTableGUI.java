@@ -2,7 +2,7 @@ package me.elaineqheart.miniBackpackPlugin.GUI.impl;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
 import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageInventoryGUI;
-import me.elaineqheart.miniBackpackPlugin.items.Backpack;
+import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,11 +19,11 @@ import java.util.List;
 public class CraftingTableGUI extends StorageInventoryGUI{
 
     private static final HashMap<Player, ItemStack[]> hotbar = new HashMap<>();
-    public static final HashMap<Player, Backpack> backpackData = new HashMap<>();
+    public static final HashMap<Player, BackpackNote> backpackData = new HashMap<>();
     private final ItemStack item;
-    private final Backpack data;
+    private final BackpackNote data;
 
-    public CraftingTableGUI(ItemStack item, Backpack data) {
+    public CraftingTableGUI(ItemStack item, BackpackNote data) {
         super(0, null);
         this.item = item;
         this.data = data;
@@ -62,9 +62,9 @@ public class CraftingTableGUI extends StorageInventoryGUI{
             if(i==4 && item != null) {
                 this.addButton(i, itemButton(item));
             } else {
-                String namespacedMaterial = data.craftingMaterials.get(i);
+                String namespacedMaterial = data.craftingMaterials[i];
                 Material material = Material.matchMaterial(namespacedMaterial);
-                assert material != null;
+                if(material==null) continue;
                 this.addButton(i,itemButton(new ItemStack(material)));
             }
         }
@@ -97,9 +97,9 @@ public class CraftingTableGUI extends StorageInventoryGUI{
                 hasRecipe = true;
             }
         }
-        this.data.craftingMaterials = hasRecipe ? craftingMaterials : null;
+        this.data.craftingMaterials = hasRecipe ? craftingMaterials.toArray(new String[9]) : null;
 
-        ItemManager.safeBackpackData(data);
+        ItemManager.safeBackpackData(data,true);
 
     }
 

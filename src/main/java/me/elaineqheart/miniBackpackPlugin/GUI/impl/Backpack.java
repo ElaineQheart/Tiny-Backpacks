@@ -16,13 +16,13 @@ import org.bukkit.persistence.PersistentDataType;
 import java.io.IOException;
 import java.util.Objects;
 
-public class BackpackGUI extends StorageInventoryGUI {
+public class Backpack extends StorageInventoryGUI {
 
     private final ItemStack item;
     private final int slots;
     private final int inventorySize;
 
-    public BackpackGUI(ItemStack item, String name, int slots) {
+    public Backpack(ItemStack item, String name, int slots) {
         super(slots, name);
 
         this.item = item;
