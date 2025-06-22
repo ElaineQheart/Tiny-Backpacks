@@ -112,7 +112,7 @@ public class EditBackpackGUI extends InventoryGUI {
                         }
                     }
                     Player p = (Player) event.getWhoClicked();
-                    MiniBackpackPlugin.getStorageGUIManager().openGUI(upgradeItem,new CraftingTableGUI(upgradeItem,data), p);
+                    MiniBackpackPlugin.getStorageGUIManager().openGUI(4, upgradeItem,new CraftingTableGUI(upgradeItem,data), p);
 
                 });
     }
@@ -146,7 +146,7 @@ public class EditBackpackGUI extends InventoryGUI {
                 .consumer(event -> {
                     Sounds.click(event);
                     data.isHopperSized = !data.isHopperSized;
-                    ItemManager.safeBackpackData(data,true);
+                    ItemManager.safeBackpackData(data,false);
                     MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), (Player) event.getWhoClicked());
                 });
     }
@@ -159,7 +159,7 @@ public class EditBackpackGUI extends InventoryGUI {
                         String formalizedInput = ItemManager.toTitleCase(input);
                         ItemManager.deleteBackpack(data);
                         data.name = formalizedInput;
-                        ItemManager.safeBackpackData(data,true);
+                        ItemManager.safeBackpackData(data,false);
                         MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
                     };
                     MiniBackpackPlugin.getSearchGUI().open("The Item name", ItemManager.emptyPaper, (Player) event.getWhoClicked(), nameInput);
@@ -177,11 +177,24 @@ public class EditBackpackGUI extends InventoryGUI {
                             MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
                             return;
                         }
-                        data.slots = Integer.parseInt(input);
+                        int desiredSlots = Integer.parseInt(input);
+                        if(ItemManager.minSlots.get(data.name) != null && desiredSlots < ItemManager.minSlots.get(data.name)) {
+                            player.sendMessage("The amount of slots cannot be less than " + ItemManager.minSlots.get(data.name) + ".");
+                            player.sendMessage("This is because this backpack is used as an upgrade for another backpack with that many slots.");
+                            MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
+                            return;
+                        }
+                        if(ItemManager.maxSlots.get(data.name) != null && desiredSlots > ItemManager.maxSlots.get(data.name)) {
+                            player.sendMessage("The amount of slots cannot be more than " + ItemManager.maxSlots.get(data.name) + ".");
+                            player.sendMessage("This is because there is a backpack who uses this one as an upgrade with that many slots.");
+                            MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
+                            return;
+                        }
+                        data.slots = desiredSlots;
                         if(data.slots > 5) {
                             data.isHopperSized = false;
                         }
-                        ItemManager.safeBackpackData(data,true);
+                        ItemManager.safeBackpackData(data,false);
                         MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), player);
                         // ask to type in chat
                     };

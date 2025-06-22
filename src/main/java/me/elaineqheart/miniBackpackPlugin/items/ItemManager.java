@@ -49,12 +49,14 @@ public class ItemManager{
     public static final HashMap<String,String> craftingUpgrades = new HashMap<>(); //material backpack name, result backpack name
     private static final HashMap<String,List<String>> craftingMaterials = new HashMap<>(); //backpack name, material list
     private static final Set<ShapedRecipe> recipeMap = new HashSet<>(); //backpack name, recipe
+    public static final HashMap<String,Integer> maxSlots = new HashMap<>(); //backpack title name, max slots
+    public static final HashMap<String,Integer> minSlots = new HashMap<>(); //backpack title name, min slots
     //private static final String TINY_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/9165ee13a606e1b44695af46c39b52ce66657a4c4a623d0b282a7b8ce0509404";
     private static final String SMALL_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/2308bf5cc3e9decaf0770c3fdad1e042121cf39cc2505bbb866e18c6d23ccd0c";
 
 
     public static void init() {
-        loadBackpacks(false);
+        loadBackpacks(false, true);
         createFillerItem();
         createViewBackpacks();
         createCreateNewBackpack();
@@ -75,7 +77,7 @@ public class ItemManager{
         createDeselectUpgrade();
     }
 
-    public static void loadBackpacks(boolean reloadRecipes) {
+    public static void loadBackpacks(boolean reloadRecipes, boolean addRecipes) {
         if(reloadRecipes) Bukkit.resetRecipes(); //reloads all recipes, because with Bukkit.removeRecipe, the recipe is not removed from a Crafter !!! BUG REPORT
         //but I'm too lazy to report this
 
@@ -127,14 +129,18 @@ public class ItemManager{
                     if(MiniBackpackPlugin.getPlugin().getConfig().getConfigurationSection(namespacedMaterial) != null && !hasAnUpgrade) {
                         hasAnUpgrade = true;
                         recipe.setIngredient(symbol, Material.PLAYER_HEAD);
+                        //material backpack name, result backpack name
                         craftingUpgrades.put(namespacedMaterial, itemName); //store the upgrade backpack name
-                        //a backpack upgrade
+                        //the material backpack has a maximum of slots
+                        //the result backpack has a minimum of slots, so that the upgraded backpack always has equally or more slots
+                        minSlots.put(toTitleCase(itemName), MiniBackpackPlugin.getPlugin().getConfig().getInt(namespacedMaterial + ".slots"));
+                        maxSlots.put(toTitleCase(namespacedMaterial), MiniBackpackPlugin.getPlugin().getConfig().getInt(itemName + ".slots"));
                     } else {
                         Bukkit.getLogger().warning("Invalid material \"" + namespacedMaterial + "\" for backpack: " + itemName);
                     }
                 }
             }
-            Bukkit.addRecipe(recipe);
+            if(addRecipes) Bukkit.addRecipe(recipe);
 
             ingredientMap.put(" ", "air");
             List<String> transformedPattern = pattern.stream() //something like [air, leather, air, leather, tiny_backpack, leather, air, leather, air]
@@ -153,7 +159,7 @@ public class ItemManager{
         }
 
     }
-    public static void safeBackpackData(BackpackNote data, boolean reload) {
+    public static void safeBackpackData(BackpackNote data, boolean reloadRecipes) {
         String name = toDataCase(data.name);
         MiniBackpackPlugin.getPlugin().getConfig().set(name + ".slots", data.slots);
         if(data.isHopperSized) {
@@ -167,11 +173,9 @@ public class ItemManager{
         } else {
             MiniBackpackPlugin.getPlugin().getConfig().set(name + ".recipe", null); //remove the recipe if there are no crafting materials
         }
-        if(reload) {
-            MiniBackpackPlugin.getPlugin().saveConfig();
-            MiniBackpackPlugin.getPlugin().reloadConfig();
-            loadBackpacks(true); //reload backpacks after saving
-        }
+        MiniBackpackPlugin.getPlugin().saveConfig();
+        MiniBackpackPlugin.getPlugin().reloadConfig();
+        loadBackpacks(reloadRecipes, reloadRecipes); //reload backpacks after saving
     }
 
     private static void recipeYamlBuilder(List<String> inputs, String path) {
@@ -224,7 +228,7 @@ public class ItemManager{
         }
 
         MiniBackpackPlugin.getPlugin().saveConfig();
-        loadBackpacks(true); //reload backpacks after deleting
+        loadBackpacks(true, true); //reload backpacks after deleting
     }
     public static boolean checkIfBackpackExists(String name, int slots, ItemStack item, Player p) {
         String dataName = toDataCase(name);

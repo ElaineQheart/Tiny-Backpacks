@@ -73,7 +73,7 @@ public class OpenBackpackListener implements Listener {
             } else {
                 name = meta.getItemName();
             }
-            MiniBackpackPlugin.getStorageGUIManager().openGUI(item, new Backpack(item,name,slots), event.getPlayer());
+            MiniBackpackPlugin.getStorageGUIManager().openGUI(event.getPlayer().getInventory().getHeldItemSlot(), item, new Backpack(item,name,slots), event.getPlayer());
         }
 
     }

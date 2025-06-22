@@ -50,7 +50,7 @@ public class ChatInputListener implements Listener {
             data.texture = input;
             activePlayerTextureInput.remove(event.getPlayer());
             Bukkit.getScheduler().runTaskLater(MiniBackpackPlugin.getPlugin(), () -> {
-                ItemManager.safeBackpackData(data,true);
+                ItemManager.safeBackpackData(data,false);
                 MiniBackpackPlugin.getGUIManager().openGUI(new EditBackpackGUI(data), event.getPlayer());
             }, 1);
         }

@@ -1,7 +1,6 @@
 package me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryHandler;
-import me.elaineqheart.miniBackpackPlugin.GUI.impl.EditBackpackGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,15 +26,17 @@ import java.util.Objects;
 public class StorageGUIManager {
 
     private final Map<Inventory, ItemStack> item = new HashMap<>();
+    private final Map<Inventory, Integer> slots = new HashMap<>();
     private final Map<Inventory, InventoryHandler> activeInventories = new HashMap<>();
 
-    public void openGUI(ItemStack item, StorageInventoryGUI gui, Player player) {
-        this.registerHandledInventory(item, gui.getInventory(), gui);
+    public void openGUI(int slot, ItemStack item, StorageInventoryGUI gui, Player player) {
+        this.registerHandledInventory(slot, item, gui.getInventory(), gui);
         player.openInventory(gui.getInventory());
     }
 
-    public void registerHandledInventory(ItemStack item, Inventory inventory, InventoryHandler handler) {
+    public void registerHandledInventory(int slot, ItemStack item, Inventory inventory, InventoryHandler handler) {
         this.item.put(inventory,item);
+        this.slots.put(inventory, slot);
         this.activeInventories.put(inventory,handler);
     }
 
@@ -92,8 +92,9 @@ public class StorageGUIManager {
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
         ItemStack hotbarItem = null;
+        int slot = event.getSlot();
 
-        if(Objects.equals(current, item.get(inventory)) || Objects.equals(current, ItemManager.barrier)
+        if(Objects.equals(slot, slots.get(inventory)) || Objects.equals(current, ItemManager.barrier)
                 || Objects.equals(current,ItemManager.fillerItem) || Objects.equals(current, ItemManager.craftingInfo1)
                 || Objects.equals(current, ItemManager.craftingInfo2) || Objects.equals(current, ItemManager.craftingInfo3)) {
             // completely disable these clicks

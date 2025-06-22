@@ -6,15 +6,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.checkerframework.checker.units.qual.A;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class BackpackNote {
 
-    public String name;
+    public String name; //"Iron Backpack", "Tiny Backpack"
     public int slots;
     public String texture;
     public boolean isHopperSized;
