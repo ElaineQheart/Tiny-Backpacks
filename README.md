@@ -1,4 +1,4 @@
-# Tiny Backpack Plugin
+# Mini Backpacks Plugin
 
 This plugin was created by a request of Oalz (@0alz on Discord).
 
