@@ -93,6 +93,8 @@ public class StorageGUIManager {
         ItemStack cursor = event.getCursor();
         ItemStack hotbarItem = null;
         int slot = event.getSlot();
+        //check if the inventory is the player's inventory
+        if(event.getClickedInventory() != null && !event.getClickedInventory().getType().equals(InventoryType.PLAYER)) slot = -1;
 
         if(Objects.equals(slot, slots.get(inventory)) || Objects.equals(current, ItemManager.barrier)
                 || Objects.equals(current,ItemManager.fillerItem) || Objects.equals(current, ItemManager.craftingInfo1)

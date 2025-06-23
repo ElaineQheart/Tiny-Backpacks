@@ -66,6 +66,10 @@ public class ConfirmDeleteGUI extends InventoryGUI {
                     p.closeInventory();
                     try {
                         ItemManager.deleteBackpack(data);
+                    } catch (IllegalArgumentException e) {
+                        p.sendMessage("This backpack is used in the crafting recipe of " + ChatColor.YELLOW + e.getMessage() +
+                                ChatColor.WHITE + ". Please remove it from the recipe first.");
+                        return;
                     } catch (Exception e) {
                         p.sendMessage(ChatColor.RED + "An error occurred while deleting the backpack.");
                         return;

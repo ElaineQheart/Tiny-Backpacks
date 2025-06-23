@@ -56,7 +56,7 @@ public class ItemManager{
 
 
     public static void init() {
-        loadBackpacks(false, true);
+        reloadBackpacks(false, true);
         createFillerItem();
         createViewBackpacks();
         createCreateNewBackpack();
@@ -77,7 +77,7 @@ public class ItemManager{
         createDeselectUpgrade();
     }
 
-    public static void loadBackpacks(boolean reloadRecipes, boolean addRecipes) {
+    public static void reloadBackpacks(boolean reloadRecipes, boolean addRecipes) {
         if(reloadRecipes) Bukkit.resetRecipes(); //reloads all recipes, because with Bukkit.removeRecipe, the recipe is not removed from a Crafter !!! BUG REPORT
         //but I'm too lazy to report this
 
@@ -175,7 +175,7 @@ public class ItemManager{
         }
         MiniBackpackPlugin.getPlugin().saveConfig();
         MiniBackpackPlugin.getPlugin().reloadConfig();
-        loadBackpacks(reloadRecipes, reloadRecipes); //reload backpacks after saving
+        reloadBackpacks(reloadRecipes, reloadRecipes); //reload backpacks after saving
     }
 
     private static void recipeYamlBuilder(List<String> inputs, String path) {
@@ -214,6 +214,7 @@ public class ItemManager{
     public static void deleteBackpack(BackpackNote data) {
         String dataName = toDataCase(data.name);
         if(!MiniBackpackPlugin.getPlugin().getConfig().contains(dataName)) return;
+        if(craftingUpgrades.containsKey(dataName)) throw new IllegalArgumentException(craftingUpgrades.get(dataName)); //backpack is used as an upgrade backpack, so it cannot be deleted
         MiniBackpackPlugin.getPlugin().getConfig().set(dataName, null);
         //remove it from crafting recipes
         for(String key : craftingUpgrades.keySet()) { //material backpack name, result backpack name
@@ -222,13 +223,12 @@ public class ItemManager{
                 BackpackNote craftingUpgradeData = getBackpackNoteFromItem(getBackpackFromName(resultBackpackName));
                 craftingUpgradeData.setMaterial(4, "air"); //remove the upgrade backpack
                 craftingUpgradeData.hasUpgradeBackpack = false; //set the upgrade backpack to false
-                safeBackpackData(craftingUpgradeData, false);
-
+                safeBackpackData(craftingUpgradeData, true);
             }
         }
 
         MiniBackpackPlugin.getPlugin().saveConfig();
-        loadBackpacks(true, true); //reload backpacks after deleting
+        reloadBackpacks(true, true); //reload backpacks after deleting
     }
     public static boolean checkIfBackpackExists(String name, int slots, ItemStack item, Player p) {
         String dataName = toDataCase(name);

@@ -14,7 +14,7 @@ public class ReloadYMLCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
         MiniBackpackPlugin.getPlugin().reloadConfig();
-        ItemManager.loadBackpacks(true, true);
+        ItemManager.reloadBackpacks(true, true);
         if (commandSender instanceof Player p) {
             p.sendMessage(ChatColor.GREEN + "MiniBackpack config reloaded successfully!");
         }
