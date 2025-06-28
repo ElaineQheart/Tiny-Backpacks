@@ -13,6 +13,7 @@ import me.elaineqheart.miniBackpackPlugin.commands.ReloadYMLCommand;
 import me.elaineqheart.miniBackpackPlugin.items.CraftingListener;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.listener.OpenBackpackListener;
+import me.elaineqheart.miniBackpackPlugin.items.listener.RecipeUnlockListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,6 +47,7 @@ public final class MiniBackpackPlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ChatInputListener(), this);
         Bukkit.getPluginManager().registerEvents(new CraftingListener(), this);
         Bukkit.getPluginManager().registerEvents(new EditCraftingBackArrowListener(), this);
+        Bukkit.getPluginManager().registerEvents(new RecipeUnlockListener(), this);
         getCommand("editbackpack").setExecutor(new EditBackpacksCommand());
         getCommand("backpackreload").setExecutor(new ReloadYMLCommand());
         getCommand("backpackitems").setExecutor(new GiveBackpackCommand());

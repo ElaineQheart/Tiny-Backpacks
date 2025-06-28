@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -46,13 +47,14 @@ public class ItemManager{
     public static ItemStack craftingInfo3;
     public static ItemStack deselectUpgrade;
 
-    public static final HashMap<String,String> craftingUpgrades = new HashMap<>(); //material backpack name, result backpack name
+    public static final HashMap<String,List<String>> craftingUpgrades = new HashMap<>(); //material backpack name, result backpack name(s) - can be multiple
     private static final HashMap<String,List<String>> craftingMaterials = new HashMap<>(); //backpack name, material list
     private static final Set<ShapedRecipe> recipeMap = new HashSet<>(); //backpack name, recipe
     public static final HashMap<String,Integer> maxSlots = new HashMap<>(); //backpack title name, max slots
     public static final HashMap<String,Integer> minSlots = new HashMap<>(); //backpack title name, min slots
     //private static final String TINY_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/9165ee13a606e1b44695af46c39b52ce66657a4c4a623d0b282a7b8ce0509404";
     private static final String SMALL_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/2308bf5cc3e9decaf0770c3fdad1e042121cf39cc2505bbb866e18c6d23ccd0c";
+    public static final HashMap<Material, Collection<NamespacedKey>> unlockRecipes = new HashMap<>(); //material, recipes to unlock
 
 
     public static void init() {
@@ -129,8 +131,11 @@ public class ItemManager{
                     if(MiniBackpackPlugin.getPlugin().getConfig().getConfigurationSection(namespacedMaterial) != null && !hasAnUpgrade) {
                         hasAnUpgrade = true;
                         recipe.setIngredient(symbol, Material.PLAYER_HEAD);
-                        //material backpack name, result backpack name
-                        craftingUpgrades.put(namespacedMaterial, itemName); //store the upgrade backpack name
+                        //material backpack name, List.of(result backpack name)
+                        if(!craftingUpgrades.containsKey(namespacedMaterial)) {
+                            craftingUpgrades.put(namespacedMaterial, new ArrayList<>()); //make a new arrayList, if it doesn't exist yet
+                        }
+                        craftingUpgrades.get(namespacedMaterial).add(itemName); //store the upgrade backpack name
                         //the material backpack has a maximum of slots
                         //the result backpack has a minimum of slots, so that the upgraded backpack always has equally or more slots
                         minSlots.put(toTitleCase(itemName), MiniBackpackPlugin.getPlugin().getConfig().getInt(namespacedMaterial + ".slots"));
@@ -155,6 +160,17 @@ public class ItemManager{
                 }
             }
             recipeMap.add(recipe); //store the recipe for this backpack
+
+            if(!hasAnUpgrade) {
+                for(ItemStack craftingIngredient : recipe.getIngredientMap().values()) {
+                    Material material = craftingIngredient.getType();
+                    if(material == Material.AIR) continue; //skip air
+                    if(!unlockRecipes.containsKey(material)) {
+                        unlockRecipes.put(material, new ArrayList<>()); //make a new arrayList, if it doesn't exist yet
+                    }
+                    unlockRecipes.get(material).add(recipe.getKey()); //get the list of recipes and add it
+                }
+            }
 
         }
 
@@ -214,18 +230,20 @@ public class ItemManager{
     public static void deleteBackpack(BackpackNote data) {
         String dataName = toDataCase(data.name);
         if(!MiniBackpackPlugin.getPlugin().getConfig().contains(dataName)) return;
-        if(craftingUpgrades.containsKey(dataName)) throw new IllegalArgumentException(craftingUpgrades.get(dataName)); //backpack is used as an upgrade backpack, so it cannot be deleted
+        //if backpack is used as an upgrade backpack, so it cannot be deleted
+        if(craftingUpgrades.containsKey(dataName)) throw new IllegalArgumentException(craftingUpgrades.get(dataName).toString());
         MiniBackpackPlugin.getPlugin().getConfig().set(dataName, null);
-        //remove it from crafting recipes
-        for(String key : craftingUpgrades.keySet()) { //material backpack name, result backpack name
-            if(key.equals(dataName)) {
-                String resultBackpackName = craftingUpgrades.get(key);
-                BackpackNote craftingUpgradeData = getBackpackNoteFromItem(getBackpackFromName(resultBackpackName));
-                craftingUpgradeData.setMaterial(4, "air"); //remove the upgrade backpack
-                craftingUpgradeData.hasUpgradeBackpack = false; //set the upgrade backpack to false
-                safeBackpackData(craftingUpgradeData, true);
-            }
-        }
+
+        //remove it from crafting recipes (not in use, because the process is stopped above if a crafting upgrade is used)
+//        for(String key : craftingUpgrades.keySet()) { //material backpack name, result backpack name
+//            if(key.equals(dataName)) {
+//                String resultBackpackName = craftingUpgrades.get(key);
+//                BackpackNote craftingUpgradeData = getBackpackNoteFromItem(getBackpackFromName(resultBackpackName));
+//                craftingUpgradeData.setMaterial(4, "air"); //remove the upgrade backpack
+//                craftingUpgradeData.hasUpgradeBackpack = false; //set the upgrade backpack to false
+//                safeBackpackData(craftingUpgradeData, true);
+//            }
+//        }
 
         MiniBackpackPlugin.getPlugin().saveConfig();
         reloadBackpacks(true, true); //reload backpacks after deleting
@@ -255,11 +273,12 @@ public class ItemManager{
         String upgradeItem = null;
         //search for the value and not the key
         for(String key : craftingUpgrades.keySet()) {
-            String resultItemName = craftingUpgrades.get(key); //this is the result item name
             String dataName = toDataCase(meta.getItemName());
-            if(resultItemName.equals(dataName)) {
-                upgradeItem = key; //if the result item name is equal to the backpack name, then this is the upgrade item
-                break;
+            for (String resultItemName : craftingUpgrades.get(key)) { //this is the result item name
+                if(resultItemName.equals(dataName)) {
+                    upgradeItem = key; //if the result item name is equal to the backpack name, then this is the upgrade item
+                    break;
+                }
             }
         }
 
