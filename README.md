@@ -1,7 +1,7 @@
-# Tiny Backpack Plugin
+# Mini Backpacks Plugin
 
 This plugin was created by a request of Oalz (@0alz on Discord).
 
-The plugin adds two items, playerheads with a custom texture, into the game. They work as backpacks, with one having 9 slots and the other 3 that you can use.
+With this plugin you can create your own backpacks.
 
-**important:** *not finished yet*
+The spigotmc page for more information: https://www.spigotmc.org/resources/mini-backpacks.126319/
