@@ -9,7 +9,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -49,12 +48,13 @@ public class ItemManager{
 
     public static final HashMap<String,List<String>> craftingUpgrades = new HashMap<>(); //material backpack name, result backpack name(s) - can be multiple
     private static final HashMap<String,List<String>> craftingMaterials = new HashMap<>(); //backpack name, material list
-    private static final Set<ShapedRecipe> recipeMap = new HashSet<>(); //backpack name, recipe
+    private static final HashMap<String,List<ShapedRecipe>> recipeMap = new HashMap<>(); //backpack name, upgrade recipe(s)
     public static final HashMap<String,Integer> maxSlots = new HashMap<>(); //backpack title name, max slots
     public static final HashMap<String,Integer> minSlots = new HashMap<>(); //backpack title name, min slots
     //private static final String TINY_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/9165ee13a606e1b44695af46c39b52ce66657a4c4a623d0b282a7b8ce0509404";
     private static final String SMALL_BACKPACK_TEXTURE = "http://textures.minecraft.net/texture/2308bf5cc3e9decaf0770c3fdad1e042121cf39cc2505bbb866e18c6d23ccd0c";
     public static final HashMap<Material, Collection<NamespacedKey>> unlockRecipes = new HashMap<>(); //material, recipes to unlock
+    public static final HashMap<String, Collection<NamespacedKey>> unlockRecipesByBackpack = new HashMap<>(); //backpack name, recipes to unlock
 
 
     public static void init() {
@@ -90,6 +90,8 @@ public class ItemManager{
         craftingMaterials.clear();
         craftingUpgrades.clear();
         backpacks.clear();
+        unlockRecipes.clear();
+        unlockRecipesByBackpack.clear();
         if (MiniBackpackPlugin.getPlugin().getConfig().getConfigurationSection("") == null) return;
         for(String itemName : MiniBackpackPlugin.getPlugin().getConfig().getConfigurationSection("").getKeys(false)) {
             String texture = MiniBackpackPlugin.getPlugin().getConfig().getString(itemName + ".texture");
@@ -154,14 +156,17 @@ public class ItemManager{
                     .toList();
             craftingMaterials.put(itemName, transformedPattern); //store the crafting materials for this backpack
 
-            for (ShapedRecipe check : recipeMap) { //check for double recipes, which will overwrite eachother
-                if (check.getIngredientMap().equals(recipe.getIngredientMap())) {
-                    MiniBackpackPlugin.getPlugin().getLogger().warning("Duplicate recipe found for backpack: " + itemName + ". The recipe will be overwritten.");
+            for (List<ShapedRecipe> checkList : recipeMap.values()) { //check for double recipes, which will overwrite eachother
+                for(ShapedRecipe check : checkList) {
+                    if (check.getIngredientMap().equals(recipe.getIngredientMap())) {
+                        Bukkit.broadcastMessage("Duplicate recipe found for backpack: \"" + itemName + "\". The recipe will be overwritten.");
+                    }
                 }
             }
-            recipeMap.add(recipe); //store the recipe for this backpack
+            if(!recipeMap.containsKey(itemName)) recipeMap.put(itemName, new ArrayList<>()); //make a new arrayList, if it doesn't exist yet
+            recipeMap.get(itemName).add(recipe); //store the recipe for this backpack
 
-            if(!hasAnUpgrade) {
+            if(!hasAnUpgrade) { //fill up the unlockRecipes map with the crafting ingredients
                 for(ItemStack craftingIngredient : recipe.getIngredientMap().values()) {
                     Material material = craftingIngredient.getType();
                     if(material == Material.AIR) continue; //skip air
@@ -173,6 +178,16 @@ public class ItemManager{
             }
 
         }
+        //unlockRecipesByBackpack
+        for (List<String> backpackList : craftingUpgrades.values()) { //material backpack name, result backpack name(s) - can be multiple
+            for(String backpack : backpackList){
+                unlockRecipesByBackpack.put(backpack, new ArrayList<>()); //make the list ready
+                for (ShapedRecipe recipe : recipeMap.get(backpack)) {
+                    unlockRecipesByBackpack.get(backpack).add(recipe.getKey());
+                }
+            }
+        }
+
 
     }
     public static void safeBackpackData(BackpackNote data, boolean reloadRecipes) {
