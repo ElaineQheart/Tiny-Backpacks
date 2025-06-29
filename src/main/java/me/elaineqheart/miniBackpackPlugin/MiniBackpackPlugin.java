@@ -10,7 +10,7 @@ import me.elaineqheart.miniBackpackPlugin.GUI.other.input.ChatInputListener;
 import me.elaineqheart.miniBackpackPlugin.commands.EditBackpacksCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.GiveBackpackCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.ReloadYMLCommand;
-import me.elaineqheart.miniBackpackPlugin.items.CraftingListener;
+import me.elaineqheart.miniBackpackPlugin.items.listener.CraftingListener;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.listener.OpenBackpackListener;
 import me.elaineqheart.miniBackpackPlugin.items.listener.RecipeUnlockListener;

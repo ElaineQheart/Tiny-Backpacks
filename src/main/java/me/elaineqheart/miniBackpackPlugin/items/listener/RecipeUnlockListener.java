@@ -2,7 +2,6 @@ package me.elaineqheart.miniBackpackPlugin.items.listener;
 
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,9 +28,6 @@ public class RecipeUnlockListener implements Listener {
         //the crafted material could theoretically also be a player head (ex. a backpack)
         if(event.getRecipe().getResult().getItemMeta() == null) return;
         String itemName = ItemManager.toDataCase(event.getRecipe().getResult().getItemMeta().getItemName());
-        System.out.println(itemName);
-        System.out.println(ItemManager.craftingUpgrades);
-        System.out.println(ItemManager.unlockRecipesByBackpack);
         if (ItemManager.craftingUpgrades.containsKey(itemName)) {
             for(String upgradeBackpackName : ItemManager.craftingUpgrades.get(itemName)) {
                 p.discoverRecipes(ItemManager.unlockRecipesByBackpack.get(upgradeBackpackName));

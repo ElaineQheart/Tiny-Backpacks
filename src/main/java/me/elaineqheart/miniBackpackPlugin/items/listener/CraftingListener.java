@@ -1,6 +1,7 @@
-package me.elaineqheart.miniBackpackPlugin.items;
+package me.elaineqheart.miniBackpackPlugin.items.listener;
 
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
+import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -27,6 +28,10 @@ public class CraftingListener implements Listener {
                 if (container.has(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "slots"))) {
                     ItemStack result = event.getInventory().getResult(); //the result
                     if (result == null || result.getItemMeta() == null) return;
+                    if(!ItemManager.craftingUpgrades.containsKey(ItemManager.toDataCase(itemName))) {
+                        event.getInventory().setResult(null); //cancel the crafting
+                        continue;
+                    }
                     for (String upgradeItemName : ItemManager.craftingUpgrades.get(ItemManager.toDataCase(itemName))) { //the expected result item name
                         //check which possible upgrade is the result of the crafting grid
                         if (upgradeItemName != null && upgradeItemName.equals(ItemManager.toDataCase(result.getItemMeta().getItemName()))) {
