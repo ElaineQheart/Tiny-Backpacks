@@ -5,6 +5,7 @@ import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageInventoryG
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
+import me.elaineqheart.miniBackpackPlugin.items.StorageConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -81,13 +82,18 @@ public class Backpack extends StorageInventoryGUI {
         if(item.getItemMeta() == null) return;
         String data = item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "items"), PersistentDataType.STRING);
         if(data == null || data.isEmpty()) return;
-        ItemStack[] items;
-        try {
-            items = ItemStackConverter.decode(data);
-        } catch (IOException e) {
-            throw new RuntimeException("ERROR in BackpackGUI. Unable to decode the itemdata in the backpack.", e);
+        ItemStack[] items = new ItemStack[0];
+        if(data.equals("data too big to be stored here")) {
+            items = StorageConfig.get().getObject(String.valueOf(item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "id"), PersistentDataType.INTEGER)), ItemStack[].class);
+        } else {
+            try {
+                items = ItemStackConverter.decode(data);
+            } catch (IOException e) {
+                throw new RuntimeException("ERROR in BackpackGUI. Unable to decode the itemdata in the backpack.", e);
+            }
         }
         int i = 0;
+        if(items == null) {return;}
         while (i < items.length) {
             this.addButton(i, itemButton(items[i]));
             i++;

@@ -10,6 +10,7 @@ import me.elaineqheart.miniBackpackPlugin.GUI.other.input.ChatInputListener;
 import me.elaineqheart.miniBackpackPlugin.commands.EditBackpacksCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.GiveBackpackCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.ReloadYMLCommand;
+import me.elaineqheart.miniBackpackPlugin.items.StorageConfig;
 import me.elaineqheart.miniBackpackPlugin.items.listener.CraftingListener;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.listener.OpenBackpackListener;
@@ -51,11 +52,16 @@ public final class MiniBackpackPlugin extends JavaPlugin {
         getCommand("editbackpack").setExecutor(new EditBackpacksCommand());
         getCommand("backpackreload").setExecutor(new ReloadYMLCommand());
         getCommand("backpackitems").setExecutor(new GiveBackpackCommand());
+        getCommand("backpackitems").setTabCompleter(new GiveBackpackCommand());
 
         //Setup config
         reloadConfig(); //reload if there were changes
         getConfig().options().copyDefaults(false);
         saveConfig();
+        StorageConfig.setup();
+        StorageConfig.get().options().copyDefaults(false);
+        StorageConfig.save();
+
         getLogger().info("MiniBackpacks enabled in " + (System.currentTimeMillis() - startTime) + "ms");
     }
 
