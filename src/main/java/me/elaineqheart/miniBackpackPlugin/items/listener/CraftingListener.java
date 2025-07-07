@@ -3,7 +3,6 @@ package me.elaineqheart.miniBackpackPlugin.items.listener;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import me.elaineqheart.miniBackpackPlugin.items.BackpackNote;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class CraftingListener implements Listener {
@@ -57,7 +55,6 @@ public class CraftingListener implements Listener {
     }
 
     private static boolean isValidRecipe(BackpackNote note, PrepareItemCraftEvent event) {
-        System.out.println(Arrays.toString(note.craftingMaterials));
         String backpackName = ItemManager.toTitleCase(note.craftingMaterials[4]); //name of the backpack in the middle of the crafting grid
         int index = -1;
         for(int i = 0; i < 9; i++) { // 0 slot is the result slot, 1-9 are the crafting slots
@@ -73,12 +70,11 @@ public class CraftingListener implements Listener {
         for(int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 int currentIndex = (indexRow + i) * 3 + (indexColumn + j);
-                System.out.println(currentIndex);
                 ItemStack item = event.getInventory().getItem(currentIndex+1); //+1 because the first slot is the result slot
                 if (indexRow + i < 0 || indexRow + i >= 3 || indexColumn + j < 0 || indexColumn + j >= 3) {
                     if (item != null) return false; //recipe is invalid if the item isn't air in an unspecified slot
                     if(!note.craftingMaterials[i*3 + j].equals("air")) return false;
-                    int row = indexRow + i;
+                    int row = indexRow + i; //check the other side of the crafting grid in case it's a small recipe not in the center of the crafting grid
                     if(indexRow + i < 0) {
                         row = 2;
                     } else if (indexRow + i >= 3) {
@@ -90,20 +86,13 @@ public class CraftingListener implements Listener {
                     } else if (indexColumn + j < 0) {
                         column = 2;
                     }
-                    System.out.println(row + " " + column);
-                    System.out.println(row*3 + column + 1);
-                    System.out.println(event.getInventory().getItem(row*3 + column + 1));
-                    if(event.getInventory().getItem(row*3 + column + 1) != null) return false; //check the other side of the crafting grid
+                    if(event.getInventory().getItem(row*3 + column + 1) != null) return false;
                     continue;
                 }
                 if (index == currentIndex) continue; //skip the backpack item itself
                 if (item == null){
                     if(!note.craftingMaterials[i*3 + j].equals("air")) return false;
                 } else if (!item.getType().equals(Material.matchMaterial(note.craftingMaterials[i*3 + j]))) {
-
-                    System.out.println(item.getType());
-                    System.out.println(Material.matchMaterial(note.craftingMaterials[i*3 + j]));
-                    System.out.println(item.getType().equals(Material.matchMaterial(note.craftingMaterials[i*3 + j])));
                     return false; //recipe is invalid if the item isn't the expected material
                 }
             }
