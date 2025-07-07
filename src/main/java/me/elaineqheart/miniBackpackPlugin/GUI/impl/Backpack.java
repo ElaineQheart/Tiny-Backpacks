@@ -84,7 +84,8 @@ public class Backpack extends StorageInventoryGUI {
         if(data == null || data.isEmpty()) return;
         ItemStack[] items = new ItemStack[0];
         if(data.equals("data too big to be stored here")) {
-            items = StorageConfig.get().getObject(String.valueOf(item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(MiniBackpackPlugin.getPlugin(), "id"), PersistentDataType.INTEGER)), ItemStack[].class);
+            items = StorageConfig.get().getObject(String.valueOf(item.getItemMeta().getPersistentDataContainer().get(
+                    new NamespacedKey(MiniBackpackPlugin.getPlugin(), "id"), PersistentDataType.INTEGER)), ItemStack[].class);
         } else {
             try {
                 items = ItemStackConverter.decode(data);

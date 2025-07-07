@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -132,7 +133,7 @@ public class ItemManager{
                 } else {
                     if(MiniBackpackPlugin.getPlugin().getConfig().getConfigurationSection(namespacedMaterial) != null && !hasAnUpgrade) {
                         hasAnUpgrade = true;
-                        recipe.setIngredient(symbol, Material.PLAYER_HEAD);
+                        recipe.setIngredient(symbol, new RecipeChoice.ExactChoice(ItemManager.getBackpackFromName(namespacedMaterial)));
                         //material backpack name, List.of(result backpack name)
                         if(!craftingUpgrades.containsKey(namespacedMaterial)) {
                             craftingUpgrades.put(namespacedMaterial, new ArrayList<>()); //make a new arrayList, if it doesn't exist yet
