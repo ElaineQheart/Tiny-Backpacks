@@ -2,17 +2,19 @@ package me.elaineqheart.miniBackpackPlugin;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.GUIListener;
 import me.elaineqheart.miniBackpackPlugin.GUI.GUIManager;
+import me.elaineqheart.miniBackpackPlugin.GUI.InventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageGUIListener;
 import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageGUIManager;
+import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageInventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.EditCraftingBackArrowListener;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.input.AnvilGUIManager;
 import me.elaineqheart.miniBackpackPlugin.GUI.other.input.ChatInputListener;
 import me.elaineqheart.miniBackpackPlugin.commands.EditBackpacksCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.GiveBackpackCommand;
 import me.elaineqheart.miniBackpackPlugin.commands.ReloadYMLCommand;
+import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.StorageConfig;
 import me.elaineqheart.miniBackpackPlugin.items.listener.CraftingListener;
-import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.listener.OpenBackpackListener;
 import me.elaineqheart.miniBackpackPlugin.items.listener.RecipeUnlockListener;
 import org.bukkit.Bukkit;
@@ -68,7 +70,10 @@ public final class MiniBackpackPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.closeInventory();
+            if (p.getOpenInventory().getTopInventory().getHolder() instanceof StorageInventoryGUI
+                    || p.getOpenInventory().getTopInventory().getHolder() instanceof InventoryGUI) {
+                p.closeInventory();
+            }
         }
     }
 }
