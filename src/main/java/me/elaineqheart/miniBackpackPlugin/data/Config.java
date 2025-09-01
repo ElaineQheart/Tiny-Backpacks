@@ -1,21 +1,20 @@
-package me.elaineqheart.miniBackpackPlugin.items;
+package me.elaineqheart.miniBackpackPlugin.data;
 
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
 
-public class StorageConfig {
+public class Config {
 
-    private static File file;
-    private static FileConfiguration customFile;
+    private File file;
+    private FileConfiguration customFile;
 
     //Finds or generates the custom config file
-    public static void setup(){
-        file = new File(MiniBackpackPlugin.getPlugin().getDataFolder(), "persistent_large_storage.yml");
+    public void setup(String fileName){
+        file = new File(MiniBackpackPlugin.getPlugin().getDataFolder(), fileName + ".yml"); //"persistent_large_storage.yml"
 
         if (!file.exists()){
             try{
@@ -28,11 +27,11 @@ public class StorageConfig {
         customFile = YamlConfiguration.loadConfiguration(file);
     }
 
-    public static FileConfiguration get(){
+    public FileConfiguration get(){
         return customFile;
     }
 
-    public static void save(){
+    public void save(){
         try {
             customFile.save(file);
         }catch (IOException e){
@@ -40,7 +39,8 @@ public class StorageConfig {
         }
     }
 
-    public static void reload(){
+    public void reload(){
         customFile = YamlConfiguration.loadConfiguration(file);
     }
+
 }

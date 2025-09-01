@@ -3,9 +3,9 @@ package me.elaineqheart.miniBackpackPlugin.GUI.impl;
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryButton;
 import me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers.StorageInventoryGUI;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
+import me.elaineqheart.miniBackpackPlugin.data.ConfigManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
-import me.elaineqheart.miniBackpackPlugin.items.StorageConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -84,7 +84,7 @@ public class Backpack extends StorageInventoryGUI {
         if(data == null || data.isEmpty()) return;
         ItemStack[] items = new ItemStack[0];
         if(data.equals("data too big to be stored here")) {
-            items = StorageConfig.get().getObject(String.valueOf(item.getItemMeta().getPersistentDataContainer().get(
+            items = ConfigManager.StorageConfig.get().getObject(String.valueOf(item.getItemMeta().getPersistentDataContainer().get(
                     new NamespacedKey(MiniBackpackPlugin.getPlugin(), "id"), PersistentDataType.INTEGER)), ItemStack[].class);
         } else {
             try {

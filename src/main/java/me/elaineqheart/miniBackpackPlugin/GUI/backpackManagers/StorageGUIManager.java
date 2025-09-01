@@ -2,6 +2,7 @@ package me.elaineqheart.miniBackpackPlugin.GUI.backpackManagers;
 
 import me.elaineqheart.miniBackpackPlugin.GUI.InventoryHandler;
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
+import me.elaineqheart.miniBackpackPlugin.data.SettingManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemStackConverter;
 import org.bukkit.Material;
@@ -60,7 +61,7 @@ public class StorageGUIManager {
         InventoryHandler handler = this.activeInventories.get(event.getInventory());
 
         if (handler != null){
-            event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.BLOCK_SHULKER_BOX_OPEN,1,1);
+            event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), SettingManager.open,1,1);
             handler.onOpen(event);
 
             if(item.get(event.getInventory()) == null) return;
@@ -75,7 +76,7 @@ public class StorageGUIManager {
         Inventory inventory = event.getInventory();
         InventoryHandler handler = this.activeInventories.get(inventory);
         if (handler != null){
-            event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_BAT_TAKEOFF,1,1);
+            event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), SettingManager.close,1,1);
             if (!event.getInventory().getType().equals(InventoryType.CRAFTER)) { // the crafter is for editing the crafting recipe
                 ItemStackConverter.updateItem(item.get(inventory), inventory.getContents());
             }

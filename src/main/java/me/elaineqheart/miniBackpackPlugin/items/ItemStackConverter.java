@@ -1,6 +1,7 @@
 package me.elaineqheart.miniBackpackPlugin.items;
 
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
+import me.elaineqheart.miniBackpackPlugin.data.ConfigManager;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static me.elaineqheart.miniBackpackPlugin.data.ConfigManager.StorageConfig;
 
 public class ItemStackConverter {
 

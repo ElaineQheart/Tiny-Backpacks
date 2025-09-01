@@ -1,6 +1,7 @@
 package me.elaineqheart.miniBackpackPlugin.commands;
 
 import me.elaineqheart.miniBackpackPlugin.MiniBackpackPlugin;
+import me.elaineqheart.miniBackpackPlugin.data.ConfigManager;
 import me.elaineqheart.miniBackpackPlugin.items.ItemManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,6 +15,7 @@ public class ReloadYMLCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
         MiniBackpackPlugin.getPlugin().reloadConfig();
+        ConfigManager.reload();
         ItemManager.reloadBackpacks(true, true);
         if (commandSender instanceof Player p) {
             p.sendMessage(ChatColor.GREEN + "MiniBackpack config.yml reloaded successfully!");
