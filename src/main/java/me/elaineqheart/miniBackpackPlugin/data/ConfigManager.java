@@ -7,10 +7,10 @@ public class ConfigManager {
 
 
     public static void setup(){
-        StorageConfig.setup("persistent_large_storage");
+        StorageConfig.setup("persistent_large_storage", false);
         StorageConfig.get().options().copyDefaults(false);
         StorageConfig.save();
-        SettingsConfig.setup("settings");
+        SettingsConfig.setup("settings",true);
         SettingsConfig.get().options().copyDefaults(true);
         SettingsConfig.save();
     }
